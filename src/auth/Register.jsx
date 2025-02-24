@@ -1,9 +1,52 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import useAuth from "../hooks/useAuth";
+import useAxiosInstance from "./../hooks/useAxiosInstance";
 
 const Register = () => {
+  const { user, setUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const axiosInstance = useAxiosInstance();
   const navigate = useNavigate();
-  const [accountType, setAccountType] = useState("User");
+  const [formData, setFormData] = useState({
+    name: "",
+    pin: "",
+    mobileNumber: "",
+    email: "",
+    role: "user",
+    nid: "",
+  });
+
+  // Input handler
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // form handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Identity number
+      const mobileNumber = formData?.mobileNumber;
+      const phoneRegex = /^01[3-9]\d{8}$/;
+
+      if (!phoneRegex.test(mobileNumber)) {
+        toast.error("Invalid mobile number");
+        return;
+      }
+      // save data db
+      const { data } = await axiosInstance.post("/register", formData);
+      toast.error(data?.message);
+      if (data?.token) {
+        sessionStorage.setItem("token", data?.token);
+      }
+
+      // Proceed with form submission logic...
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -11,7 +54,7 @@ const Register = () => {
         <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
           Create an Account
         </h2>
-        <form>
+        <form onSubmit={handleSubmit}>
           {/* Grid Layout for Large Devices */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
@@ -20,6 +63,9 @@ const Register = () => {
               </label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Enter your full name"
                 className="input input-bordered w-full"
                 required
@@ -32,6 +78,9 @@ const Register = () => {
               </label>
               <input
                 type="password"
+                name="pin"
+                value={formData.pin}
+                onChange={handleChange}
                 placeholder="Enter 5-digit PIN"
                 className="input input-bordered w-full"
                 maxLength={5}
@@ -46,7 +95,10 @@ const Register = () => {
               </label>
               <input
                 type="tel"
-                placeholder="Enter your mobile number"
+                name="mobileNumber"
+                value={formData.mobileNumber}
+                onChange={handleChange}
+                placeholder="+880**********"
                 className="input input-bordered w-full"
                 required
               />
@@ -58,6 +110,9 @@ const Register = () => {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="Enter your email"
                 className="input input-bordered w-full"
                 required
@@ -69,12 +124,13 @@ const Register = () => {
                 Account Type
               </label>
               <select
+                name="role"
                 className="select select-bordered w-full"
-                value={accountType}
-                onChange={(e) => setAccountType(e.target.value)}
+                value={formData.role}
+                onChange={handleChange}
               >
-                <option value="User">User</option>
-                <option value="Agent">Agent</option>
+                <option value="user">User</option>
+                <option value="agent">Agent</option>
               </select>
             </div>
 
@@ -84,6 +140,9 @@ const Register = () => {
               </label>
               <input
                 type="text"
+                name="nid"
+                value={formData.nid}
+                onChange={handleChange}
                 placeholder="Enter your NID number"
                 className="input input-bordered w-full"
                 required
@@ -91,7 +150,9 @@ const Register = () => {
             </div>
           </div>
 
-          <button className="btn btn-primary w-full mt-6">Register</button>
+          <button type="submit" className="btn btn-primary w-full mt-6">
+            Register
+          </button>
         </form>
 
         <div className="text-center mt-4">

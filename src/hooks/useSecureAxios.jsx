@@ -2,7 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 //  Axios instance with interceptors
 const axiosInstance = axios.create({
-  baseURL: import.meta.SERVER_URL,
+  baseURL: import.meta.env.SERVER_URL,
   headers: {
     "Content-Type": "application/json",
   },
