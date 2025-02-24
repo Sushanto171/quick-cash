@@ -8,7 +8,12 @@ const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
-    console.log(user);
+    if (user) {
+      setLoading(false);
+    }
+    if (!user) {
+      setLoading(true);
+    }
   }, [user]);
   const authInfo = { user, setUser, loading, setLoading, setToken, token };
 

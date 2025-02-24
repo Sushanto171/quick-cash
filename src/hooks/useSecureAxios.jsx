@@ -2,7 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 //  Axios instance with interceptors
 const axiosSecure = axios.create({
-  baseURL: import.meta.env.SERVER_URL,
+  baseURL: import.meta.env.VITE_SERVER_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -10,7 +10,7 @@ const axiosSecure = axios.create({
 const useSecureAxios = () => {
   //   get token
   const getAuthToken = () => {
-    return sessionStorage.getItem("authToken");
+    return sessionStorage.getItem("token");
   };
   // Interceptor for adding auth token to each request
   axiosSecure.interceptors.request.use(
@@ -28,7 +28,9 @@ const useSecureAxios = () => {
 
   // Interceptor res errors globally
   axiosSecure.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      return response;
+    },
     (error) => {
       if (error.response) {
         const status = error.response.status;

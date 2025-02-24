@@ -13,7 +13,7 @@ const useRole = () => {
       if (user?.email) {
         try {
           const res = await axiosSecure(`/role/${user.email}`);
-          setUserRole(res?.data?.role || user?.role);
+          setUserRole(res?.data?.role);
         } catch (error) {
           console.error("Error fetching user role:", error);
         }
@@ -22,7 +22,6 @@ const useRole = () => {
     fetchRole();
   }, [user]);
 
-  console.log(userRole);
   return userRole;
 };
 

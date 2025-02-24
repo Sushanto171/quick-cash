@@ -47,6 +47,7 @@ const Register = () => {
         }
         setUser(data?.data || null);
         navigate("/");
+        if (data.bonus) toast.success(`Congratulations! You get 40 tk bonus.`);
         setFormData({
           name: "",
           pin: "",
