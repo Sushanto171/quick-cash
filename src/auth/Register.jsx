@@ -5,7 +5,7 @@ import useAuth from "../hooks/useAuth";
 import useAxiosInstance from "./../hooks/useAxiosInstance";
 
 const Register = () => {
-  const { user, setUser } = useAuth();
+  const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosInstance = useAxiosInstance();
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       // Identity number
       const mobileNumber = formData?.mobileNumber;
       const phoneRegex = /^01[3-9]\d{8}$/;
@@ -36,15 +37,29 @@ const Register = () => {
         return;
       }
       // save data db
-      const { data } = await axiosInstance.post("/register", formData);
-      toast.error(data?.message);
-      if (data?.token) {
-        sessionStorage.setItem("token", data?.token);
-      }
+      const res = await axiosInstance.post("/register", formData);
+      const { data } = res;
 
-      // Proceed with form submission logic...
+      toast.success(data?.message);
+      if (res?.status === 201) {
+        if (data?.token) {
+          sessionStorage.setItem("token", data?.token);
+        }
+        setUser(data?.data || null);
+        navigate("/");
+        setFormData({
+          name: "",
+          pin: "",
+          mobileNumber: "",
+          email: "",
+          role: "user",
+          nid: "",
+        });
+      }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,7 +79,7 @@ const Register = () => {
               <input
                 type="text"
                 name="name"
-                value={formData.name}
+                value={formData.name || ""}
                 onChange={handleChange}
                 placeholder="Enter your full name"
                 className="input input-bordered w-full"
@@ -79,7 +94,7 @@ const Register = () => {
               <input
                 type="password"
                 name="pin"
-                value={formData.pin}
+                value={formData.pin || ""}
                 onChange={handleChange}
                 placeholder="Enter 5-digit PIN"
                 className="input input-bordered w-full"
@@ -96,7 +111,7 @@ const Register = () => {
               <input
                 type="tel"
                 name="mobileNumber"
-                value={formData.mobileNumber}
+                value={formData.mobileNumber || ""}
                 onChange={handleChange}
                 placeholder="+880**********"
                 className="input input-bordered w-full"
@@ -111,7 +126,7 @@ const Register = () => {
               <input
                 type="email"
                 name="email"
-                value={formData.email}
+                value={formData.email || ""}
                 onChange={handleChange}
                 placeholder="Enter your email"
                 className="input input-bordered w-full"
@@ -126,7 +141,7 @@ const Register = () => {
               <select
                 name="role"
                 className="select select-bordered w-full"
-                value={formData.role}
+                value={formData.role || "user"}
                 onChange={handleChange}
               >
                 <option value="user">User</option>
@@ -141,7 +156,7 @@ const Register = () => {
               <input
                 type="text"
                 name="nid"
-                value={formData.nid}
+                value={formData.nid || ""}
                 onChange={handleChange}
                 placeholder="Enter your NID number"
                 className="input input-bordered w-full"
@@ -151,7 +166,7 @@ const Register = () => {
           </div>
 
           <button type="submit" className="btn btn-primary w-full mt-6">
-            Register
+            {loading ? "..." : ""} Register
           </button>
         </form>
 

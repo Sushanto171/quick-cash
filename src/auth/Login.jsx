@@ -13,7 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     identifier: "",
-    password: "",
+    pin: "",
   });
 
   const identifyInputType = (input) => {
@@ -40,8 +40,8 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      setLoading(true);
       const identify = identifyInputType(formData.identifier);
-
       if (!identify) {
         return; // Invalid input, stop execution
       }
@@ -54,11 +54,26 @@ const Login = () => {
       // db operation
       const { data } = await axiosInstance.post("/log-in", loginData);
       toast.success(data.message);
-
-      // Here you can send `loginData` to the server
+      if (data) {
+        if (data?.token) {
+          sessionStorage.setItem("token", data.token);
+        }
+        setUser(data?.data || null);
+        navigate("/");
+        setFormData({
+          name: "",
+          pin: "",
+          mobileNumber: "",
+          email: "",
+          role: "user",
+          nid: "",
+        });
+      }
     } catch (error) {
       // console.log(error);
       toast.error("Invalid credentials");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,9 +92,9 @@ const Login = () => {
             <input
               type="text"
               name="identifier"
-              value={formData.identifier}
+              value={formData.identifier || ""}
               onChange={handleChange}
-              placeholder="+880***********"
+              placeholder="Phone number"
               className="input input-bordered w-full"
               required
             />
@@ -92,7 +107,7 @@ const Login = () => {
             <input
               type="password"
               name="password"
-              value={formData.pin}
+              value={formData.password || ""}
               onChange={handleChange}
               placeholder="*****"
               pattern="\d{5}"
@@ -103,9 +118,54 @@ const Login = () => {
           </div>
 
           <button type="submit" className="btn btn-primary w-full mt-4">
-            Log In
+            {loading ? "..." : ""} Log In
           </button>
         </form>
+        {/* Auto Credential Dropdown */}
+        <details className="dropdown w-full mt-4">
+          <summary className="btn m-1">Use Auto Credentials</summary>
+          <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+            <li>
+              <a
+                onClick={() =>
+                  setFormData({
+                    identifier: "admin@info.com",
+                    password: "12345",
+                  })
+                }
+                className="cursor-pointer"
+              >
+                Admin Credential
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() =>
+                  setFormData({
+                    identifier: "agent@gmail.com",
+                    password: "12345",
+                  })
+                }
+                className="cursor-pointer"
+              >
+                Agent Credential
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() =>
+                  setFormData({
+                    identifier: "user@gmail.com",
+                    password: "12345",
+                  })
+                }
+                className="cursor-pointer"
+              >
+                User Credential
+              </a>
+            </li>
+          </ul>
+        </details>
 
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">

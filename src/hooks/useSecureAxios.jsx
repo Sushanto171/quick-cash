@@ -1,7 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 //  Axios instance with interceptors
-const axiosInstance = axios.create({
+const axiosSecure = axios.create({
   baseURL: import.meta.env.SERVER_URL,
   headers: {
     "Content-Type": "application/json",
@@ -13,7 +13,7 @@ const useSecureAxios = () => {
     return sessionStorage.getItem("authToken");
   };
   // Interceptor for adding auth token to each request
-  axiosInstance.interceptors.request.use(
+  axiosSecure.interceptors.request.use(
     (config) => {
       const token = getAuthToken();
       if (token) {
@@ -27,7 +27,7 @@ const useSecureAxios = () => {
   );
 
   // Interceptor res errors globally
-  axiosInstance.interceptors.response.use(
+  axiosSecure.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response) {
@@ -43,6 +43,8 @@ const useSecureAxios = () => {
       return Promise.reject(error);
     }
   );
+
+  return axiosSecure;
 };
 
 export default useSecureAxios;
