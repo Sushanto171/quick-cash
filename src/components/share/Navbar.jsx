@@ -1,5 +1,9 @@
 import Container from "./Container";
-
+{
+  /* <button onClick={() => navigate("/log-in")} className="btn">
+Login
+</button> */
+}
 const Navbar = () => {
   return (
     <div className="bg-base-100 shadow-sm">
