@@ -16,9 +16,10 @@ const useAllUsersData = () => {
     queryFn: async () => {
       if (user?.email) {
         const { data } = await axiosSecure(`/users`);
-        return data?.data;
-      }
+        return data?.data || [];
+      } else return [];
     },
+    enabled: !!user?.email,
   });
 
   return { allUser, isLoading, isError, refetch };

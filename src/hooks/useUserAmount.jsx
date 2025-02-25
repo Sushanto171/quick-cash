@@ -20,6 +20,7 @@ const useUserAmount = () => {
         return parseFloat(data?.amount).toFixed(2) || 0;
       }
     },
+    enabled: !!user?.email,
   });
 
   return { amount, isLoading, isError, refetch };

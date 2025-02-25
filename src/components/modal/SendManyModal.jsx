@@ -1,54 +1,107 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
+import useSecureAxios from "../../hooks/useSecureAxios";
 
-const SendManyModal = ({ receiver }) => {
+const SendManyModal = ({ receiver, amount, refetch }) => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const axiosSecure = useSecureAxios();
 
   const [sendManyData, setSendManyData] = useState({
-    name: user?.name,
-    email: user?.email,
-    mobileNumber: user?.mobileNumber,
-    accountType: user?.role,
-    receiverName: receiver?.name,
-    receiverEmail: receiver?.email,
-    receiverMobileNumber: receiver?.mobileNumber,
+    name: user?.name || "",
+    mobileNumber: user?.mobileNumber || 0,
+    accountType: user?.role || "",
+    receiverName: receiver?.name || "",
+    receiverMobileNumber: receiver?.mobileNumber || 0,
     receiverAccountType: receiver?.role,
     totalAmount: 0,
-    status: "unsent",
-    transaction: "",
   });
+
+  useEffect(() => {
+    if (receiver || user) {
+      setSendManyData({
+        name: user?.name,
+        mobileNumber: user?.mobileNumber,
+        accountType: user?.role,
+        receiverName: receiver?.name,
+        receiverMobileNumber: receiver?.mobileNumber || "",
+        receiverAccountType: receiver?.role,
+      });
+    }
+  }, [receiver, user]);
 
   const handleSend = async () => {
     const { totalAmount } = sendManyData;
     if (!totalAmount || totalAmount < 50) {
-      alert("Minimum send amount is 50 BDT!");
+      toast.error("Minimum send amount is 50 BDT!");
       return;
     }
 
     // Ensure you select the recipients and pass the amount
     if (!receiver) {
-      alert("Please select at least one recipient!");
+      toast.error("Please select at least one recipient!");
       return;
     }
-
+    if (!user) {
+      toast.error("Sender is unbailable!");
+      return;
+    }
     try {
-      console.log(sendManyData);
-      // Add logic to send the data here
+      setLoading(true);
+      const sendMoneyFee = +sendManyData.totalAmount > 100 ? 5 : 0;
+      const sendData = {
+        ...sendManyData,
+        status: "unsent",
+        transaction:
+          Date.now().toString() + Math.random().toString().slice(2, 5),
+        sendMoneyFee,
+        finalAmount: sendMoneyFee + +totalAmount,
+        totalAmount: +sendManyData.totalAmount,
+        timestamp: new Date().toISOString(),
+      };
+
+      const { data } = await axiosSecure.post(
+        `/send-many/${user?.email}`,
+        sendData
+      );
+      console.log(data);
+      toast.success(
+        `Transaction Successful! 
+        Amount: $${data.totalAmount}, 
+        Fee: $${data.cost}, 
+        ID: ${data.transaction}`,
+        { position: "top-right", duration: 5000 }
+      );
+      refetch();
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong!");
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false);
+      document.getElementById("sendManyModal").close();
     }
+  };
+
+  // handle modal
+  const handleModal = async () => {
+    if (!amount || amount < 50) {
+      toast.error("Cannot send money. Minimum amount is 50 BDT.");
+      return;
+    }
+    document.getElementById("sendManyModal").showModal();
   };
 
   return (
     <div>
       {/* Open Modal Button */}
       <button
-        className="btn btn-primary"
-        onClick={() => document.getElementById("sendManyModal").showModal()}
+        onClick={handleModal}
+        className="bg-blue-500 text-white p-4 w-full rounded-lg shadow-md disabled:cursor-not-allowed disabled:bg-gray-500 hover:bg-blue-700"
+        disabled={!receiver}
       >
-        Open Modal
+        Send Money
       </button>
 
       {/* Modal */}
@@ -64,7 +117,7 @@ const SendManyModal = ({ receiver }) => {
               type="number"
               className="input input-bordered w-full"
               name="amount"
-              value={sendManyData.totalAmount}
+              value={sendManyData.totalAmount || ""}
               onChange={(e) =>
                 setSendManyData({
                   ...sendManyData,
@@ -81,7 +134,7 @@ const SendManyModal = ({ receiver }) => {
               className="input input-bordered w-full"
               name="name"
               readOnly
-              value={sendManyData.receiverName}
+              value={sendManyData.mobileNumber || ""}
             />
           </fieldset>
 
@@ -98,7 +151,7 @@ const SendManyModal = ({ receiver }) => {
               onClick={handleSend}
               disabled={sendManyData.totalAmount < 50}
             >
-              Send Money
+              {loading ? "..." : ""} Send Money
             </button>
           </div>
         </div>
