@@ -24,6 +24,7 @@ const UserManagement = ({ users, refetch }) => {
           <tr>
             <th className="border px-4 py-2">Name</th>
             <th className="border px-4 py-2">Email</th>
+            <th className="border px-4 py-2">Balance(TK)</th>
             <th className="border px-4 py-2">Status</th>
             <th className="border px-4 py-2">Actions</th>
           </tr>
@@ -33,6 +34,7 @@ const UserManagement = ({ users, refetch }) => {
             <tr key={user._id} className="text-center">
               <td className="border px-4 py-2">{user.name}</td>
               <td className="border px-4 py-2">{user.email}</td>
+              <td className="border px-4 py-2">{user.amount}</td>
               <td className="border px-4 py-2">
                 {user.status ? (
                   <span className="text-red-500 font-bold">Blocked</span>
@@ -43,7 +45,7 @@ const UserManagement = ({ users, refetch }) => {
               <td className="border px-4 py-2">
                 <button
                   onClick={() => handleStatusChange(user._id, user.status)}
-                  className={`px-4 py-2 rounded text-white transition ${
+                  className={`px-4 py-2 btn rounded text-white transition ${
                     user.status
                       ? "bg-green-500 hover:bg-green-600"
                       : "bg-red-500 hover:bg-red-600"

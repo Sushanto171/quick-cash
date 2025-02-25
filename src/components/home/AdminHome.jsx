@@ -5,6 +5,7 @@ import useAllUsersData from "../../hooks/useAllUsersData";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
 import LoadingSpinner from "../share/LoadingSpinner";
+import AgentApproval from "./homeShare/AgentApproval";
 import BalanceCard from "./homeShare/BalanceCard";
 import TransactionHistory from "./homeShare/TransactionHistory";
 import UserManagement from "./homeShare/UserManagement";
@@ -15,6 +16,9 @@ const AdminHome = () => {
   const { allUser, isLoading: userLoading, refetch } = useAllUsersData();
   const [otherUser, setOtherUser] = useState([]);
   const [agent, setAgent] = useState([]);
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabs = ["User Management", "Agent Approval", "Transaction History"];
   const {
     data: adminTransaction = {},
     isLoading,
@@ -65,8 +69,35 @@ const AdminHome = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-4xl mx-auto p-6">
         <BalanceCard balance={balance} />
-        <UserManagement users={otherUser} refetch={refetch} />
-        <TransactionHistory transactions={transactions} />
+        {/* Tabs */}
+        <div className="flex border-b-2">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveTab(index)}
+              className={`px-4 py-2 text-lg font-semibold ${
+                activeTab === index
+                  ? "border-b-4 border-blue-500 text-blue-500"
+                  : "text-gray-700"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === 0 && (
+            <UserManagement users={otherUser} refetch={refetch} />
+          )}
+          {activeTab === 1 && (
+            <AgentApproval agents={agent} refetch={refetch} />
+          )}
+          {activeTab === 2 && (
+            <TransactionHistory transactions={transactions} />
+          )}
+        </div>
       </div>
     </div>
   );
