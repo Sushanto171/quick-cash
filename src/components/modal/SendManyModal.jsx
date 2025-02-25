@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
 
-const SendManyModal = ({ receiver, amount, refetch, selectedRole }) => {
+const SendManeyModal = ({ receiver, amount, refetch, selectedRole }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosSecure = useSecureAxios();
@@ -63,15 +63,15 @@ const SendManyModal = ({ receiver, amount, refetch, selectedRole }) => {
       };
 
       const { data } = await axiosSecure.post(
-        `/send-many/${user?.email}`,
+        `/send-maney/${user?.email}`,
         sendData
       );
-      console.log(data);
+
       toast.success(
         ` Transaction Successful! 
-        Amount: $${data.totalAmount}, 
-        Fee: $${data.cost}, 
-        ID: ${data.transaction}`,
+        Amount: $${data?.data?.totalAmount}, 
+        Fee: $${data?.data?.cost}, 
+        ID: ${data?.data?.transaction}`,
         { position: "top-right", duration: 5000 }
       );
       refetch();
@@ -127,7 +127,7 @@ const SendManyModal = ({ receiver, amount, refetch, selectedRole }) => {
               placeholder="Minimum 50 BDT"
             />
             <label className="block text-gray-700 font-medium mb-1">
-              Receiver Name:
+              Receiver Number:
             </label>
             <input
               type="text"
@@ -160,4 +160,4 @@ const SendManyModal = ({ receiver, amount, refetch, selectedRole }) => {
   );
 };
 
-export default SendManyModal;
+export default SendManeyModal;

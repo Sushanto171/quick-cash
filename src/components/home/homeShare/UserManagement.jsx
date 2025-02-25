@@ -1,47 +1,26 @@
-// UserManagement.js
-import axios from "axios";
-import { useState } from "react";
+/* eslint-disable react/prop-types */
+import toast from "react-hot-toast";
+import useSecureAxios from "../../../hooks/useSecureAxios";
 
-const UserManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch users from backend API
-  //   useEffect(() => {
-  //     const fetchUsers = async () => {
-  //       try {
-  //         const response = await axios.get("/api/users"); // Replace with your actual API endpoint
-  //         setUsers(response.data);
-  //         setLoading(false);
-  //       } catch (error) {
-  //         console.error("Error fetching users:", error);
-  //         setLoading(false);
-  //       }
-  //     };
-  //     fetchUsers();
-  //   }, []);
-
-  // Handle user status change (approve/block)
-  const handleStatusChange = async (userId, status) => {
+const UserManagement = ({ users, refetch }) => {
+  const axiosSecure = useSecureAxios();
+  const handleStatusChange = async (userId, currentStatus) => {
     try {
-      await axios.patch(`/api/users/${userId}`, { status });
-      setUsers(
-        users.map((user) => (user._id === userId ? { ...user, status } : user))
-      );
+      const { data } = await axiosSecure.patch(`/users/${userId}`, {
+        status: !currentStatus,
+      });
+      toast.success(data?.message);
+      refetch();
     } catch (error) {
       console.error("Error updating user status:", error);
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="bg-white p-6 rounded-md shadow-md">
       <h2 className="text-xl font-bold mb-4">User Management</h2>
-      <table className="min-w-full table-auto">
-        <thead>
+      <table className="min-w-full table-auto border-collapse border border-gray-300">
+        <thead className="bg-gray-100">
           <tr>
             <th className="border px-4 py-2">Name</th>
             <th className="border px-4 py-2">Email</th>
@@ -51,25 +30,26 @@ const UserManagement = () => {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user._id}>
+            <tr key={user._id} className="text-center">
               <td className="border px-4 py-2">{user.name}</td>
               <td className="border px-4 py-2">{user.email}</td>
               <td className="border px-4 py-2">
-                {user.status === "active" ? "Active" : "Blocked"}
+                {user.status ? (
+                  <span className="text-red-500 font-bold">Blocked</span>
+                ) : (
+                  <span className="text-green-500 font-bold">Active</span>
+                )}
               </td>
-              <td className="border px-4 py-2 flex gap-2">
+              <td className="border px-4 py-2">
                 <button
-                  onClick={() =>
-                    handleStatusChange(
-                      user._id,
-                      user.status === "active" ? "blocked" : "active"
-                    )
-                  }
-                  className={`px-4 py-2 rounded text-white ${
-                    user.status === "active" ? "bg-red-500" : "bg-green-500"
+                  onClick={() => handleStatusChange(user._id, user.status)}
+                  className={`px-4 py-2 rounded text-white transition ${
+                    user.status
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-red-500 hover:bg-red-600"
                   }`}
                 >
-                  {user.status === "active" ? "Block" : "Unblock"}
+                  {user.status ? "Unblock" : "Block"}
                 </button>
               </td>
             </tr>

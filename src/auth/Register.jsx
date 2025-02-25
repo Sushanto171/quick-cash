@@ -31,11 +31,18 @@ const Register = () => {
       // Identity number
       const mobileNumber = formData?.mobileNumber;
       const phoneRegex = /^01[3-9]\d{8}$/;
-
+      let approve = formData?.role === "agent" ? false : "";
+      if (approve !== "") {
+        setFormData((prev) => ({
+          ...prev,
+          approve,
+        }));
+      }
       if (!phoneRegex.test(mobileNumber)) {
         toast.error("Invalid mobile number");
         return;
       }
+
       // save data db
       const res = await axiosInstance.post("/register", formData);
       const { data } = res;

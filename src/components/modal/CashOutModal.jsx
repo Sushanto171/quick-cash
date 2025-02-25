@@ -4,17 +4,10 @@ import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
 
-const CashOutModal = ({
-  receiver,
-  amount,
-
-  refetch,
-  selectedRole,
-}) => {
+const CashOutModal = ({ receiver, amount, refetch, selectedRole }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosSecure = useSecureAxios();
-
   const [sendData, setSendData] = useState({
     name: user?.name || "",
     mobileNumber: user?.mobileNumber || 0,
@@ -23,6 +16,7 @@ const CashOutModal = ({
     receiverMobileNumber: receiver?.mobileNumber || 0,
     receiverAccountType: receiver?.role,
     totalAmount: 0,
+    pin: "",
   });
   useEffect(() => {
     if (receiver || user) {
@@ -38,38 +32,60 @@ const CashOutModal = ({
   }, [receiver, user]);
 
   const handleTransaction = async () => {
-    const { totalAmount } = sendData;
-    if (!totalAmount || totalAmount < 50) {
-      toast.error("Minimum amount is 50 BDT!");
+    const totalAmount = +sendData?.totalAmount;
+    if (amount < 0) {
+      toast.error("Your account is low");
+      return;
+    }
+    if (amount < totalAmount) {
+      toast.error("Your account is low");
+      return;
+    }
+    if (!totalAmount) {
+      toast.error("Invalid type");
+      return;
+    }
+    if (!sendData.pin?.length === 5 || !sendData.pin) {
+      toast.error("Invalid type");
       return;
     }
 
     try {
       setLoading(true);
-      const transactionFee = totalAmount > 100 ? 5 : 0;
-      const transactionData = {
+      const transactionFee = ((+totalAmount * 1.5) / 100).toFixed(2);
+      const cashOutData = {
         ...sendData,
         status: "unsent",
         transaction:
           Date.now().toString() + Math.random().toString().slice(2, 5),
-        sendMoneyFee: transactionFee,
-        finalAmount: transactionFee + totalAmount,
+        sendMoneyFee: +transactionFee,
+        finalAmount: +(+transactionFee + totalAmount).toFixed(),
         totalAmount,
         timestamp: new Date().toISOString(),
       };
 
       const { data } = await axiosSecure.post(
-        `/transaction/${user?.email}`,
-        transactionData
+        `/cash-out/${user?.email}`,
+        cashOutData
       );
-
+      console.log(data.data);
       toast.success(
-        `Transaction cash out successful! 
-        Amount: $${data.totalAmount}, 
-        Fee: $${data.sendMoneyFee}, 
-        ID: ${data.transaction}`,
+        `Transaction cash out successful!
+        Amount: $${data?.data?.totalAmount},
+        Fee: $${data?.data?.cost},
+        ID: ${data?.data?.transactionId}`,
         { position: "top-right", duration: 5000 }
       );
+      setSendData({
+        name: user?.name || "",
+        mobileNumber: user?.mobileNumber || 0,
+        accountType: user?.role || "",
+        receiverName: receiver?.name || "",
+        receiverMobileNumber: receiver?.mobileNumber || 0,
+        receiverAccountType: receiver?.role,
+        totalAmount: 0,
+        pin: "",
+      });
       refetch();
     } catch (error) {
       console.error("Error:", error);
@@ -82,8 +98,8 @@ const CashOutModal = ({
 
   // handle modal
   const handleModal = async () => {
-    if (!amount || amount < 50) {
-      toast.error("Cannot proceed. Minimum amount is 50 BDT.");
+    if (!amount || amount < 0) {
+      toast.error("Cannot proceed. Account is low!.");
       return;
     }
     document.getElementById("transactionModal").showModal();
@@ -109,12 +125,24 @@ const CashOutModal = ({
 
           <fieldset className="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box">
             <label className="block text-gray-700 font-medium mb-1">
+              Receiver Name:
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              name="name"
+              required
+              readOnly
+              value={sendData.receiverName || ""}
+            />
+            <label className="block text-gray-700 font-medium mb-1">
               Enter Amount
             </label>
             <input
               type="number"
               className="input input-bordered w-full"
-              name="amount"
+              name="totalAmount"
+              required
               value={sendData.totalAmount || ""}
               onChange={(e) =>
                 setSendData({
@@ -125,14 +153,22 @@ const CashOutModal = ({
               placeholder="Minimum 50 BDT"
             />
             <label className="block text-gray-700 font-medium mb-1">
-              Receiver Name:
+              Enter Pin
             </label>
             <input
-              type="text"
+              type="password"
+              maxLength={5}
+              required
               className="input input-bordered w-full"
-              name="name"
-              readOnly
-              value={sendData.receiverName || ""}
+              name="pin"
+              value={sendData.pin || ""}
+              onChange={(e) =>
+                setSendData({
+                  ...sendData,
+                  pin: e.target.value,
+                })
+              }
+              placeholder="Enter Your 5 Digit Pin"
             />
           </fieldset>
 
@@ -149,7 +185,7 @@ const CashOutModal = ({
             <button
               className="btn btn-success"
               onClick={handleTransaction}
-              disabled={sendData.totalAmount < 50}
+              disabled={!sendData.pin && !sendData.amount}
             >
               {loading ? "..." : ""} Cash Out
             </button>
