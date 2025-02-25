@@ -46,7 +46,7 @@ const TransactionActions = ({ allUser, agentAmount, refresh }) => {
   return (
     <div className="my-4">
       {/* Transaction Buttons */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="flex items-center flex-wrap gap-4">
         {/* user to user send money modal */}
         {userRole === "user" && (
           <SendManeyModal

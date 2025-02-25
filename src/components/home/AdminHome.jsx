@@ -20,7 +20,7 @@ const AdminHome = () => {
   const [agent, setAgent] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
 
-  const tabs = ["User Management", "Agent Approval", "Transaction History"];
+  const tabs = ["User Management", "Agent Approval", "Agent Transaction"];
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -61,11 +61,6 @@ const AdminHome = () => {
     }
   }, [allUser, user]);
 
-  const transactions = [
-    { description: "Approved User1", amount: 0, type: "income" },
-    { description: "Blocked User2", amount: 0, type: "expense" },
-  ];
-
   if (isError) {
     toast.error(error.message);
   }
@@ -74,10 +69,10 @@ const AdminHome = () => {
   }
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto scale-90 sm:scale-100 sm:p-6">
         <BalanceCard balance={adminTransaction?.totalAmountProcessed} />
         {/* Tabs */}
-        <div className="flex border-b-2">
+        <div className="flex border-b-2 overflow-y-auto">
           {tabs.map((tab, index) => (
             <button
               key={index}
@@ -94,16 +89,14 @@ const AdminHome = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="mt-6">
+        <div className="mt-6 overflow-y-auto">
           {activeTab === 0 && (
             <UserManagement user={otherUser} refetch={refetch} />
           )}
           {activeTab === 1 && (
             <AgentApproval agents={agent} refetch={refetch} />
           )}
-          {activeTab === 2 && (
-            <TransactionHistory transactions={transactions} />
-          )}
+          {activeTab === 2 && <TransactionHistory agent={agent} />}
         </div>
       </div>
     </div>

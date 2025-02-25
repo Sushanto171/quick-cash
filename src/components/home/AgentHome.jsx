@@ -7,18 +7,13 @@ import useSecureAxios from "../../hooks/useSecureAxios";
 import LoadingSpinner from "../share/LoadingSpinner";
 import BalanceCard from "./homeShare/BalanceCard";
 import TransactionActions from "./homeShare/TransactionActions";
-import TransactionHistory from "./homeShare/TransactionHistory";
+import UserAgentTransaction from "./homeShare/UserAgentTransaction";
 
 const AgentHome = () => {
   const { loading, user } = useAuth();
   const { allUser, isLoading } = useAllUsersData();
   const axiosSecure = useSecureAxios();
   const { isAgent, isLoading: agentLoading } = useAgentStatus();
-
-  const transactions = [
-    { description: "Cash Out to User1", amount: -2000, type: "expense" },
-    { description: "Cash In from User2", amount: 3000, type: "income" },
-  ];
 
   const {
     data: agentTransaction = {},
@@ -58,7 +53,7 @@ const AgentHome = () => {
               agentAmount={agentTransaction?.totalAmountProcessed}
               allUser={allUser}
             />
-            <TransactionHistory transactions={transactions} />
+            <UserAgentTransaction />
           </>
         ) : (
           <>

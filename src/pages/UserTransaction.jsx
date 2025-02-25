@@ -32,10 +32,10 @@ const UserTransaction = () => {
 
     fetchTransactions();
   }, [user?.mobileNumber, axiosSecure]);
-  console.log(transactions);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md overflow-y-auto">
         <button
           onClick={() => navigate(-1)}
           className="mb-4 bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded"
