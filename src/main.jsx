@@ -9,6 +9,7 @@ import Register from "./auth/Register";
 import "./index.css";
 import Error from "./pages/Error";
 import Home from "./pages/Home";
+import UserTransaction from "./pages/UserTransaction";
 import AuthProvider from "./providers/AuthProvider";
 import Main from "./Routes/Main";
 
@@ -25,6 +26,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/log-in" element={<Login />} />
             <Route path="/" element={<Main />}>
               <Route index element={<Home />} />
+              <Route path="/user-transaction" element={<UserTransaction />} />
             </Route>
             <Route path="*" element={<Error />} />
           </Routes>
