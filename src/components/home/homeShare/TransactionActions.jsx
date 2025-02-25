@@ -2,8 +2,10 @@
 import { useEffect, useState } from "react";
 import useAuth from "../../../hooks/useAuth";
 import useUserAmount from "../../../hooks/useUserAmount";
+import CashInModal from "../../modal/CashInModal";
 import SendManyModal from "../../modal/SendManyModal";
 import LoadingSpinner from "../../share/LoadingSpinner";
+import CashOutModal from "./../../modal/CashOutModal";
 
 const TransactionActions = ({ allUser }) => {
   const [selectedRole, setSelectedRole] = useState("user");
@@ -45,18 +47,22 @@ const TransactionActions = ({ allUser }) => {
           refetch={refetch}
           receiver={selectedRecipients[0]}
         />
-        <button
-          className="bg-yellow-500 text-white p-4 rounded-lg shadow-md hover:bg-yellow-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
-          disabled={selectedRecipients.length === 0 || selectedRole === "user"}
-        >
-          Cash Out
-        </button>
-        <button
-          className="bg-green-500 text-white p-4 rounded-lg shadow-md hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed"
-          disabled={selectedRecipients.length === 0 || selectedRole === "user"}
-        >
-          Cash In
-        </button>
+        {/* cah out */}
+        <CashOutModal
+          receiver={selectedRecipients}
+          amount={amount}
+          selectedRole={selectedRole}
+          refetch={refetch}
+        />
+
+        {/* cash  */}
+
+        <CashInModal
+          receiver={selectedRecipients}
+          amount={amount}
+          selectedRole={selectedRole}
+          refetch={refetch}
+        />
       </div>
 
       <div className="grid md:grid-cols-2 mt-4">
