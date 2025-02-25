@@ -1,6 +1,12 @@
 import { Link } from "react-router";
+import useAuth from "../../hooks/useAuth";
 import Container from "./Container";
 const Navbar = () => {
+  const { setUser } = useAuth();
+  const handleLogOut = () => {
+    setUser(null);
+    sessionStorage.removeItem("token");
+  };
   return (
     <div className="bg-blue-500 shadow-sm">
       <Container>
@@ -8,7 +14,9 @@ const Navbar = () => {
           <h1 className="text-xl font-bold">MFS App</h1>
           <nav>
             <Link className="mx-4">Profile</Link>
-            <Link className="mx-4">Logout</Link>
+            <button onClick={handleLogOut} className="btn">
+              Logout
+            </button>
           </nav>
         </header>
       </Container>

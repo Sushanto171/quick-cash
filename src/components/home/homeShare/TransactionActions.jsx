@@ -8,7 +8,7 @@ import LoadingSpinner from "../../share/LoadingSpinner";
 import useRole from "./../../../hooks/useRole";
 import CashOutModal from "./../../modal/CashOutModal";
 
-const TransactionActions = ({ allUser }) => {
+const TransactionActions = ({ allUser, agentAmount, refresh }) => {
   const [selectedRole, setSelectedRole] = useState("user");
   const { user } = useAuth();
   const userRole = useRole();
@@ -29,6 +29,9 @@ const TransactionActions = ({ allUser }) => {
       );
     }
   }, [allUser, user]);
+  useEffect(() => {
+    setSelectedRecipients("");
+  }, [selectedRole]);
 
   // Handle selection of multiple recipients
   const handleRecipientChange = (e) => {
@@ -66,9 +69,9 @@ const TransactionActions = ({ allUser }) => {
         {userRole === "agent" && (
           <CashInModal
             sender={selectedRecipients[0]}
-            amount={amount}
+            amount={agentAmount}
             selectedRole={selectedRole}
-            refetch={refetch}
+            refetch={refresh}
           />
         )}
       </div>

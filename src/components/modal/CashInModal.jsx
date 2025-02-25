@@ -4,43 +4,50 @@ import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
 
-const CashInModal = ({ sender, amount, refetch, selectedRole }) => {
+const CashInModal = ({ sender, amount, refetch }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosSecure = useSecureAxios();
+
   const [cashInData, setCashInData] = useState({
     receiverName: user?.name || "",
-    receiverMobileNumber: user?.mobileNumber || 0,
+    receiverMobileNumber: user?.mobileNumber || "",
     receiverAccountType: user?.role || "",
     name: sender?.name || "",
-    mobileNumber: sender?.mobileNumber || 0,
-    accountType: sender?.role,
-    totalAmount: 0,
+    mobileNumber: sender?.mobileNumber || "",
+    accountType: sender?.role || "",
+    totalAmount: "",
     pin: "",
   });
+
   useEffect(() => {
     if (sender || user) {
-      setCashInData({
+      setCashInData((prevData) => ({
+        ...prevData,
         receiverName: user?.name,
         receiverMobileNumber: user?.mobileNumber,
         receiverAccountType: user?.role,
-        name: sender?.name,
-        nobileNumber: sender?.mobileNumber || "",
-        accountType: sender?.role,
-      });
+        name: sender?.name || "",
+        mobileNumber: sender?.mobileNumber || "",
+        accountType: sender?.role || "",
+      }));
     }
   }, [sender, user]);
 
   const handleTransaction = async () => {
     const totalAmount = +cashInData?.totalAmount;
-
     if (!totalAmount) {
       toast.error("Invalid type");
+      return;
+    }
+    if (!amount || amount < totalAmount) {
+      toast.error("Account is low");
       return;
     }
 
     try {
       setLoading(true);
+
       const cashIn = {
         ...cashInData,
         status: "unsent",
@@ -57,47 +64,55 @@ const CashInModal = ({ sender, amount, refetch, selectedRole }) => {
       );
       console.log(data);
       toast.success(
-        `Transaction cash out successful!
-        Amount: $${data?.data?.totalAmount},
-        Fee: $${data?.data?.sendMoneyFee},
-        ID: ${data?.data?.transaction}`,
+        `Transaction successful!
+        Amount: ${data?.data?.totalAmount} BDT,
+        Fee: ${data?.data?.cost} BDT,
+        ID: ${data?.data?.transactionId}`,
         { position: "top-right", duration: 5000 }
       );
+      setCashInData({
+        receiverName: user?.name || "",
+        receiverMobileNumber: user?.mobileNumber || "",
+        receiverAccountType: user?.role || "",
+        name: sender?.name || "",
+        mobileNumber: sender?.mobileNumber || "",
+        accountType: sender?.role || "",
+        totalAmount: "",
+        pin: "",
+      });
       refetch();
+      document.getElementById("cashInModal").close();
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong!");
     } finally {
       setLoading(false);
-      document.getElementById("transactionModal").close();
     }
   };
 
-  // handle modal
-  const handleModal = async () => {
-    if (!amount || amount < 0) {
-      toast.error("Cannot proceed. Account is low!.");
+  const handleModal = () => {
+    if (!amount || amount < 50) {
+      toast.error("Cannot proceed. Minimum 50 BDT required.");
       return;
     }
     document.getElementById("cashInModal").showModal();
   };
+
   return (
     <div>
-      {/* Open Modal Button */}
       <button
         onClick={handleModal}
-        className={`
-         
-             bg-blue-400 hover:bg-blue-600
-         text-white p-4 w-full rounded-lg shadow-md disabled:cursor-not-allowed disabled:bg-gray-500 `}
+        disabled={!sender}
+        title={`${!sender ? "Select a user" : ""}`}
+        className="bg-blue-400 hover:bg-blue-600 text-white p-4 w-full rounded-lg shadow-md disabled:cursor-not-allowed disabled:bg-gray-500"
       >
-        Cash In for user
+        Cash In for User
       </button>
 
-      {/* Modal */}
       <dialog id="cashInModal" className="modal">
         <div className="modal-box">
-          Cash In
+          <h2 className="text-lg font-semibold mb-4">Cash In</h2>
+
           <fieldset className="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box">
             <label className="block text-gray-700 font-medium mb-1">
               Receiver Name:
@@ -105,26 +120,26 @@ const CashInModal = ({ sender, amount, refetch, selectedRole }) => {
             <input
               type="text"
               className="input input-bordered w-full"
-              name="name"
               readOnly
               value={cashInData.name || ""}
             />
+
             <label className="block text-gray-700 font-medium mb-1">
               Enter Amount
             </label>
             <input
               type="number"
               className="input input-bordered w-full"
-              name="amount"
-              value={cashInData.totalAmount || ""}
+              value={cashInData.totalAmount}
               onChange={(e) =>
-                setCashInData({
-                  ...cashInData,
+                setCashInData((prevData) => ({
+                  ...prevData,
                   totalAmount: e.target.value,
-                })
+                }))
               }
               placeholder="Minimum 50 BDT"
             />
+
             <label className="block text-gray-700 font-medium mb-1">
               Enter Pin
             </label>
@@ -132,19 +147,18 @@ const CashInModal = ({ sender, amount, refetch, selectedRole }) => {
               type="password"
               maxLength={5}
               className="input input-bordered w-full"
-              name="pin"
-              value={cashInData.pin || ""}
+              value={cashInData.pin}
               onChange={(e) =>
-                setCashInData({
-                  ...cashInData,
+                setCashInData((prevData) => ({
+                  ...prevData,
                   pin: e.target.value,
-                })
+                }))
               }
               placeholder="Enter Your 5 Digit Pin"
             />
           </fieldset>
-          {/* Buttons */}
-          <div className="flex justify-end gap-2">
+
+          <div className="flex justify-end gap-2 mt-4">
             <button
               className="btn btn-outline"
               onClick={() => document.getElementById("cashInModal").close()}
@@ -154,9 +168,9 @@ const CashInModal = ({ sender, amount, refetch, selectedRole }) => {
             <button
               className="btn btn-success"
               onClick={handleTransaction}
-              disabled={!cashInData.pin}
+              disabled={!cashInData.pin || loading}
             >
-              {loading ? "..." : ""} Cash In
+              {loading ? "Processing..." : "Cash In"}
             </button>
           </div>
         </div>

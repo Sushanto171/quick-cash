@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 import useAllUsersData from "../../hooks/useAllUsersData";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
@@ -19,6 +20,13 @@ const AdminHome = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = ["User Management", "Agent Approval", "Transaction History"];
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate("/log-in");
+    }
+  }, [user]);
   const {
     data: adminTransaction = {},
     isLoading,
@@ -39,6 +47,7 @@ const AdminHome = () => {
   });
 
   useEffect(() => {
+    if (!user) return;
     if (allUser) {
       setOtherUser(
         allUser.filter((u) => u.role === "user" && u.email !== user?.email) ||
@@ -51,14 +60,11 @@ const AdminHome = () => {
     }
   }, [allUser, user]);
 
-  console.log(allUser);
-  const balance = 10000;
   const transactions = [
     { description: "Approved User1", amount: 0, type: "income" },
     { description: "Blocked User2", amount: 0, type: "expense" },
   ];
 
-  console.log(adminTransaction);
   if (isError) {
     toast.error(error.message);
   }
@@ -68,7 +74,7 @@ const AdminHome = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-4xl mx-auto p-6">
-        <BalanceCard balance={balance} />
+        <BalanceCard balance={adminTransaction?.totalAmountProcessed} />
         {/* Tabs */}
         <div className="flex border-b-2">
           {tabs.map((tab, index) => (
@@ -89,7 +95,7 @@ const AdminHome = () => {
         {/* Tab Content */}
         <div className="mt-6">
           {activeTab === 0 && (
-            <UserManagement users={otherUser} refetch={refetch} />
+            <UserManagement user={otherUser} refetch={refetch} />
           )}
           {activeTab === 1 && (
             <AgentApproval agents={agent} refetch={refetch} />
