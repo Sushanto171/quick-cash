@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
+import useUserTransactions from "../../hooks/useUserTransactions";
 
 const SendManeyModal = ({ receiver, amount, refetch, selectedRole }) => {
+  const { refetch: userRE } = useUserTransactions();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosSecure = useSecureAxios();
@@ -75,6 +77,7 @@ const SendManeyModal = ({ receiver, amount, refetch, selectedRole }) => {
         { position: "top-right", duration: 5000 }
       );
       refetch();
+      userRE();
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong!");

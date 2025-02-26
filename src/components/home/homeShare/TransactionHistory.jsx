@@ -1,17 +1,20 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import useSecureAxios from "../../../hooks/useSecureAxios";
 
-const TransactionHistory = ({ agent = [] }) => {
+const TransactionHistory = () => {
   const [agents, setAgents] = useState([]);
-  useEffect(() => {
-    if (agent.length > 0) {
-      const approved = agent.filter((user) => user.approve === true);
-      setAgents(approved);
-    }
-  }, [agent]);
+  const axiosSecure = useSecureAxios();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axiosSecure(`/agent/transactions`);
+      setAgents(data?.transactions || []);
+    };
+    fetchData();
+  }, []);
+  // console.log(agents);
   return (
     <div className="bg-white p-6 rounded-md shadow-md overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
@@ -19,21 +22,23 @@ const TransactionHistory = ({ agent = [] }) => {
       </div>
 
       <table className="min-w-full table-auto border-collapse border border-gray-300">
-        <thead className="bg-gray-100">
+        <thead className=" ">
           <tr>
             <th className="border px-4 py-2">Name</th>
-            <th className="border px-4 py-2">Email</th>
+            <th className="border px-4 py-2">Phone</th>
             <th className="border px-4 py-2">Balance (TK)</th>
             <th className="border px-4 py-2">All Transactions</th>
           </tr>
         </thead>
         <tbody>
-          {agent.length > 0 ? (
+          {agents.length > 0 ? (
             agents.map((user) => (
               <tr key={user._id} className="text-center">
                 <td className="border px-4 py-2">{user.name}</td>
-                <td className="border px-4 py-2">{user.email}</td>
-                <td className="border px-4 py-2">{user.amount}</td>
+                <td className="border px-4 py-2">{user.agentMobileNumber}</td>
+                <td className="border px-4 py-2">
+                  {user.totalAmountProcessed}
+                </td>
 
                 <td className="border px-4 py-2">
                   <button

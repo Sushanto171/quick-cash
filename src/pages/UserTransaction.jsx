@@ -12,15 +12,17 @@ const UserTransaction = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // eslint-disable-next-line no-unused-vars
+  const [phone, setPhone] = useState(
+    user?.mobileNumber || user?.agentMobileNumber
+  );
 
   useEffect(() => {
-    if (!user?.mobileNumber) return;
+    if (!phone) return;
 
     const fetchTransactions = async () => {
       try {
-        const { data } = await axiosSecure.get(
-          `/user-transaction/${user.mobileNumber}`
-        );
+        const { data } = await axiosSecure.get(`/user-transaction/${phone}`);
         setTransactions(data.transactions);
       } catch {
         setError("Failed to fetch transactions");
@@ -31,10 +33,10 @@ const UserTransaction = () => {
     };
 
     fetchTransactions();
-  }, [user?.mobileNumber, axiosSecure]);
+  }, [phone]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen   p-6">
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md overflow-y-auto">
         <button
           onClick={() => navigate(-1)}
@@ -59,7 +61,8 @@ const UserTransaction = () => {
                 <strong>Name:</strong> {user?.name}
               </p>
               <p>
-                <strong>Mobile:</strong> {user?.mobileNumber}
+                <strong>Mobile:</strong>{" "}
+                {user?.mobileNumber || user?.agentMobileNumber}
               </p>
               <p>
                 <strong>Account Type:</strong> {user?.role}

@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
+import useUserTransactions from "../../hooks/useUserTransactions";
 
 const CashInModal = ({ sender, amount, refetch }) => {
+  const { refetch: userRE } = useUserTransactions();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosSecure = useSecureAxios();
@@ -62,7 +64,7 @@ const CashInModal = ({ sender, amount, refetch }) => {
         `/cash-in/${user?.email}`,
         cashIn
       );
-      console.log(data);
+
       toast.success(
         `Transaction successful!
         Amount: ${data?.data?.totalAmount} BDT,
@@ -81,6 +83,7 @@ const CashInModal = ({ sender, amount, refetch }) => {
         pin: "",
       });
       refetch();
+      userRE();
       document.getElementById("cashInModal").close();
     } catch (error) {
       console.error("Error:", error);
@@ -91,8 +94,8 @@ const CashInModal = ({ sender, amount, refetch }) => {
   };
 
   const handleModal = () => {
-    if (!amount || amount < 50) {
-      toast.error("Cannot proceed. Minimum 50 BDT required.");
+    if (!amount) {
+      toast.error("Cannot proceed. Account Low.");
       return;
     }
     document.getElementById("cashInModal").showModal();

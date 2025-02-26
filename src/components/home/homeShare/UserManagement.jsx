@@ -66,7 +66,7 @@ const UserManagement = ({ user, refetch }) => {
       ) : (
         <>
           <table className="min-w-full table-auto border-collapse border border-gray-300">
-            <thead className="bg-gray-100">
+            <thead className=" ">
               <tr>
                 <th className="border px-4 py-2">Name</th>
                 <th className="border px-4 py-2">Email</th>

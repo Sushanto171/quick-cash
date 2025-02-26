@@ -1,5 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useFingerprint } from "../utilies";
 //  Axios instance with interceptors
 const axiosSecure = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL,
@@ -8,17 +9,20 @@ const axiosSecure = axios.create({
   },
 });
 const useSecureAxios = () => {
+  const deviceId = useFingerprint();
   //   get token
   const getAuthToken = () => {
-    return sessionStorage.getItem("token");
+    return localStorage.getItem("token");
   };
   // Interceptor for adding auth token to each request
   axiosSecure.interceptors.request.use(
-    (config) => {
+    async (config) => {
       const token = getAuthToken();
+
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }
+      if (deviceId) config.headers["x-device-id"] = deviceId;
       return config;
     },
     (error) => {
@@ -38,6 +42,7 @@ const useSecureAxios = () => {
         if (status === 401 || status === 403) {
           // Optionally, log out the user or redirect to the login page
           toast.error("Unauthorized - token expired or invalid");
+          localStorage.removeItem("token");
         }
       } else {
         toast.error("Network error or API is down");

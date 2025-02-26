@@ -4,11 +4,15 @@ import LoadingSpinner from "../../share/LoadingSpinner";
 const UserAgentTransaction = () => {
   const { transactions, isLoading, error } = useUserTransactions();
 
-  console.log(transactions);
   if (isLoading) return <LoadingSpinner />;
   if (error) return <p className="text-red-500 text-center">{error}</p>;
   if (transactions.length === 0)
-    return <p className="text-center text-gray-500">No transactions found.</p>;
+    return (
+      <div>
+        <h2 className="text-xl font-bold">Recent Transactions</h2>
+        <p className="text-center text-gray-500">No transactions found.</p>
+      </div>
+    );
 
   return (
     <div className="bg-white p-6 rounded-md shadow-md overflow-y-auto">
@@ -17,7 +21,7 @@ const UserAgentTransaction = () => {
       </div>
 
       <table className="min-w-full table-auto border-collapse border border-gray-300 ">
-        <thead className="bg-gray-100">
+        <thead className=" ">
           <tr>
             <th className="border px-4 py-2">Transaction Id</th>
             <th className="border px-4 py-2">Time</th>

@@ -1,16 +1,17 @@
 /* eslint-disable react/prop-types */
 import useSecureAxios from "../../../hooks/useSecureAxios";
 
-const AgentApproval = ({ agents, refetch }) => {
+const AgentApproval = ({ agents, refetch, adminInfo }) => {
   const axiosSecure = useSecureAxios();
 
-  const handleApproval = async (mobileNumber, status) => {
-    console.log(status);
+  const handleApproval = async (mobileNumber, status, name) => {
     await axiosSecure.patch(`agents-approval`, {
       mobileNumber: mobileNumber,
       approved: status,
+      name: name,
     });
     refetch();
+    adminInfo();
   };
 
   return (
@@ -19,7 +20,7 @@ const AgentApproval = ({ agents, refetch }) => {
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
-          <thead className="bg-gray-100">
+          <thead className=" ">
             <tr>
               <th className="border px-4 py-2">Name</th>
               <th className="border px-4 py-2">Email</th>
@@ -37,13 +38,18 @@ const AgentApproval = ({ agents, refetch }) => {
                   <button
                     disabled={agent.approve}
                     className="btn bg-green-500 text-white px-3 py-1 disabled:bg-gray-400 disabled:text-gray-500 rounded mr-2"
-                    onClick={() => handleApproval(agent.mobileNumber, true)}
+                    onClick={() =>
+                      handleApproval(agent.mobileNumber, true, agent.name)
+                    }
                   >
                     {agent.approve ? "Approved" : "Approve"}
                   </button>
                   <button
+                    disabled={!agent.approve}
                     className="btn bg-red-500 text-white px-3 py-1 rounded"
-                    onClick={() => handleApproval(agent.mobileNumber, false)}
+                    onClick={() =>
+                      handleApproval(agent.mobileNumber, false, agent.name)
+                    }
                   >
                     Reject
                   </button>

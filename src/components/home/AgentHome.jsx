@@ -30,7 +30,7 @@ const AgentHome = () => {
           `/agent/transactions/${mobileNumber}`
         );
 
-        return data?.transactions[0];
+        return data?.transactions[0] || [];
       }
     },
     enabled: !!user?.email && isAgent,
@@ -43,7 +43,7 @@ const AgentHome = () => {
   if (loading || isLoading || agentLoading || transactionLoading)
     return <LoadingSpinner />;
   return (
-    <div className=" bg-gray-100">
+    <div className="  ">
       <div className="max-w-4xl mx-auto p-6">
         {isAgent ? (
           <>

@@ -50,7 +50,7 @@ const Register = () => {
       toast.success(data?.message);
       if (res?.status === 201) {
         if (data?.token) {
-          sessionStorage.setItem("token", data?.token);
+          localStorage.setItem("token", data?.token);
         }
         setUser(data?.data || null);
         navigate("/");
@@ -72,7 +72,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen  ">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
         <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
           Create an Account

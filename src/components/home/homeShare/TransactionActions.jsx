@@ -95,7 +95,7 @@ const TransactionActions = ({ allUser, agentAmount, refresh }) => {
 
           {/* Selected Recipients Display */}
           {selectedRecipients.length > 0 && (
-            <div className="px-2 bg-gray-100 rounded">
+            <div className="px-2   rounded">
               <h3 className="font-medium pt-1 pb-1 text-gray-700">
                 Selected Recipients:
               </h3>

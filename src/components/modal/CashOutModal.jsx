@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useSecureAxios from "../../hooks/useSecureAxios";
+import useUserTransactions from "../../hooks/useUserTransactions";
 
 const CashOutModal = ({ receiver, amount, refetch, selectedRole }) => {
+  const { refetch: userRE } = useUserTransactions();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosSecure = useSecureAxios();
@@ -68,7 +70,7 @@ const CashOutModal = ({ receiver, amount, refetch, selectedRole }) => {
         `/cash-out/${user?.email}`,
         cashOutData
       );
-      console.log(data.data);
+      // console.log(data.data);
       toast.success(
         `Transaction cash out successful!
         Amount: $${data?.data?.totalAmount},
@@ -87,6 +89,7 @@ const CashOutModal = ({ receiver, amount, refetch, selectedRole }) => {
         pin: "",
       });
       refetch();
+      userRE();
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong!");

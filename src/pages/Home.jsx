@@ -1,21 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
 import AdminHome from "../components/home/AdminHome";
 import AgentHome from "../components/home/AgentHome";
 import UserHome from "../components/home/UserHome";
+import LoadingSpinner from "../components/share/LoadingSpinner";
 import useAuth from "../hooks/useAuth";
 import useRole from "../hooks/useRole";
 
 const Home = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate("/log-in");
-    }
-  }, [user]);
+  const { loading } = useAuth();
   const userRole = useRole();
+  if (loading) return <LoadingSpinner />;
   return (
     <div>
       {userRole === "user" && <UserHome />}

@@ -33,6 +33,7 @@ const AdminHome = () => {
     isLoading,
     isError,
     error,
+    refetch: adminInfo,
   } = useQuery({
     queryKey: [user?.email, "admin"],
     queryFn: async () => {
@@ -41,7 +42,7 @@ const AdminHome = () => {
           `/admin/transactions/${user?.email}`
         );
 
-        return data?.transactions[0];
+        return data?.transactions[0] || [];
       }
     },
     enabled: !!user?.email,
@@ -68,18 +69,21 @@ const AdminHome = () => {
     return <LoadingSpinner />;
   }
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen  ">
       <div className="max-w-4xl mx-auto scale-90 sm:scale-100 sm:p-6">
-        <BalanceCard balance={adminTransaction?.totalAmountProcessed} />
+        <BalanceCard
+          balance={adminTransaction?.totalAmountProcessed}
+          admInfo={adminTransaction}
+        />
         {/* Tabs */}
-        <div className="flex border-b-2 overflow-y-auto">
+        <div className="flex border-b-2 overflow-y-auto cursor-pointer">
           {tabs.map((tab, index) => (
             <button
               key={index}
               onClick={() => setActiveTab(index)}
               className={`px-4 py-2 text-lg font-semibold ${
                 activeTab === index
-                  ? "border-b-4 border-blue-500 text-blue-500"
+                  ? "border-b-4 border-blue-500 text-blue-500 cursor-pointer"
                   : "text-gray-700"
               }`}
             >
@@ -94,7 +98,11 @@ const AdminHome = () => {
             <UserManagement user={otherUser} refetch={refetch} />
           )}
           {activeTab === 1 && (
-            <AgentApproval agents={agent} refetch={refetch} />
+            <AgentApproval
+              agents={agent}
+              adminInfo={adminInfo}
+              refetch={refetch}
+            />
           )}
           {activeTab === 2 && <TransactionHistory agent={agent} />}
         </div>

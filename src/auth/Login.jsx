@@ -4,11 +4,13 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
 import useAxiosInstance from "../hooks/useAxiosInstance";
+import { useFingerprint } from "../utilies";
 
 const Login = () => {
   const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const axiosInstance = useAxiosInstance();
+  const deviceId = useFingerprint();
 
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -41,6 +43,7 @@ const Login = () => {
 
     try {
       setLoading(true);
+
       const identify = identifyInputType(formData.identifier);
       if (!identify) {
         return; // Invalid input, stop execution
@@ -49,6 +52,7 @@ const Login = () => {
       const loginData = {
         [identify === "email" ? "email" : "mobileNumber"]: formData.identifier,
         pin: formData.password,
+        deviceId,
       };
 
       // db operation
@@ -56,7 +60,7 @@ const Login = () => {
       toast.success(data.message);
       if (data) {
         if (data?.token) {
-          sessionStorage.setItem("token", data.token);
+          localStorage.setItem("token", data.token);
         }
         setUser(data?.data || null);
         navigate("/");
@@ -78,7 +82,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen  ">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
           Log In to Your Account
