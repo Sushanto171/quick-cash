@@ -23,7 +23,7 @@ The frontend of the application is built using **React.js**. It provides a respo
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/mfs-frontend.git
+   git clone https://github.com/Sushanto171/quick-cash
    cd mfs-frontend
    ```
 
@@ -62,7 +62,7 @@ The backend is built using **Node.js** with **Express.js**. It includes user aut
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/mfs-backend.git
+   git clone https://github.com/Sushanto171/quick-cash-server
    cd mfs-backend
    ```
 
